@@ -1,0 +1,184 @@
+{
+  "name": "web-summary-to-tg",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "tg-summary",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        288,
+        -16
+      ],
+      "id": "5141a432-7f49-45d8-a2d1-ca795e11f5e0",
+      "name": "Webhook",
+      "webhookId": "b4b62e47-4805-4da0-a2e9-550218660585"
+    },
+    {
+      "parameters": {
+        "url": "=https://r.jina.ai/{{ $json.body.url }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        528,
+        -16
+      ],
+      "id": "f7332d0a-5a28-48d9-bbba-593cbf93449b",
+      "name": "HTTP Request",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=网页内容:\\n{{ $json.data }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=你是一个资深的科技/社交媒体博主。请帮我阅读以下网页内容，并用中文提炼出 3 个最核心、最引人入胜的观点或要点。  排版要求： - 使用极其适合 Telegram 浏览的排版。 - 每一条要点开头配上合适的 Emoji。 - 语言风格幽默、干练、极客。\n\n====== 格式与安全约束 ======\n1. 必须使用标准、精简的 HTML 格式进行排版，绝对不能输出任何 Markdown 标记（严禁使用 **, _, *, `, ### 等字符）。\n2. 仅允许使用以下安全的 HTML 标签来美化排版：\n   - 加粗重点：使用 <b>重点内容</b>\n   - 斜体：使用 <i>斜体内容</i>\n   - 代码块（如 URL/变量）：使用 <code>代码</code>\n3. 严格保证所有打开的标签（如 <b>）在句子结束前必须完全闭合（即必须有 </b>）。绝对不能出现孤立、未闭合的 HTML 标签。\n4. 如果内容中包含 HTML 特殊字符 '<' 或 '>'（例如代码演示或对比），请务必将其转义为 '&lt;' 和 '&gt;'，否则会破坏排版。\n5. 限制输出总字数在 4000 字以内，确保信息极度精炼。\n\n- 底部加上一句简短的行动号召（Call to Action）。"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        784,
+        -16
+      ],
+      "id": "630bf011-bb25-4dc3-990d-865c35e93ab9",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1152,
+        -16
+      ],
+      "id": "d020379d-69f4-42fd-8719-4f2b9145476f",
+      "name": "Send a text message",
+      "webhookId": "ee0885f1-0cd6-48ef-8d07-12ad655d156e"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "success",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1360,
+        -16
+      ],
+      "id": "9122faf7-d523-4437-a17f-0673f5724678",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "",
+          "mode": "list",
+          "cachedResultName": "",
+          "cachedResultUrl": ""
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        784,
+        224
+      ],
+      "id": "9056d59f-7488-4bce-816a-7925798b8c5f",
+      "name": "OpenAI Chat Model"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "2547d88e-e870-451a-8a4c-64b5b736ad07",
+  "meta": {
+    "instanceId": "2ad2579e85684bfcd045da7a7da0936f8874a716385acf9895349b9f12e4790f"
+  },
+  "nodeGroups": [],
+  "id": "0hJr8fL9PpujDsGg",
+  "tags": []
+}
