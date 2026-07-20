@@ -5,7 +5,7 @@
 **Open-source AI workflow blueprint library**
 
 [![License](https://img.shields.io/github/license/ynqwer/ai-workflow-hub)](LICENSE)
-[![Workflows](https://img.shields.io/badge/Workflows-1+-blue)](workflows/)
+[![Workflows](https://img.shields.io/badge/Workflows-2+-blue)](workflows/)
 [![PR Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)](#-contributing)
 
 English | [简体中文](README.md)
@@ -48,6 +48,7 @@ workflows/[workflow]/README.md   ← setup guide
 | Workflow | Platform | Description | Difficulty | Status |
 |----------|----------|-------------|------------|--------|
 | [web-summary-to-tg](workflows/web-summary-to-tg/) | n8n | Web content extraction + Telegram push | Medium | Ready |
+| [GitHub Release Monitor](workflows/web-update-to-tg/) | n8n | Scheduled GitHub release detection + Telegram push | Medium | Ready |
 
 ## Directory Structure
 
@@ -56,7 +57,11 @@ ai-workflow-hub/
 ├── README.md
 ├── README.en.md
 └── workflows/
-    └── web-summary-to-tg/
+    ├── web-summary-to-tg/
+    │   ├── README.md
+    │   ├── flow.json
+    │   └── preview.png
+    └── web-update-to-tg/
         ├── README.md
         ├── flow.json
         └── preview.png

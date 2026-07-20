@@ -1,0 +1,215 @@
+{
+  "name": "web-update-to-tg",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 1
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -576,
+        -16
+      ],
+      "id": "4d42e614-ceed-4588-8e5b-766520b1192f",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "url": "https://github.com/ynqwer/ai-workflow-hub",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -368,
+        -16
+      ],
+      "id": "7fa5e3dc-35ab-424f-ac10-380fffcf654e",
+      "name": "HTTP Request",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "你是一个精门的技术播报员与开源社区情报分析师。请阅读以下抓取到的 GitHub 仓库最新 Release JSON 数据。  ### 任务要求： 1. 提取出最新的版本号（对应数据中的 tag_name）以及具体的发布日志（对应数据中的 body）。 2. 将原本冗长、通常为英文且包含大量琐碎 Commit 的 Changelog 提炼为 3-5 条纯中文的硬核更新干货。 3. 重点突出：新功能（Features）、修复的重大 Bug（Bug Fixes）、以及是否有破坏性变更（Breaking Changes）。  ### 🚨 绝对去重防御机制（核心）： 仔细检查获取的数据。如果经过对比分析，你发现该版本没有任何有效的新增功能、重大修复或业务更新，或者日志正文（body）为空，请【严格仅输出】以下四个字，严禁附带任何标点符号或额外解释： 无更新  ### 格式约束（仅在有更新时生效）： 1. 必须使用标准 HTML 格式排版，绝对严禁输出任何 Markdown 标记（不用 **, _, *, `, ### 等）。 2. 只允许使用 <b>、<i>、<code> 三种标签进行样式美化。 3. 所有打开的 HTML 标签必须在句子结束前完全闭合，绝对不能出现孤立标签。 4. 文本中包含的 < 或 > 字符必须转义为 &lt; 和 &gt;。 5. 总长度严格限制在 500 字以内，采用 Emoji 开头进行分段，语言干练，直击要点。"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        -160,
+        -16
+      ],
+      "id": "1ae0921f-e10e-47aa-a6dd-05472cfe7ced",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.text }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        384,
+        -32
+      ],
+      "id": "3976adb5-ca1f-40ce-a3d5-6092936e7e33",
+      "name": "Send a text message",
+      "webhookId": "f676dec7-f187-464b-b1c5-710cd8fbed6f",
+      "credentials": {
+        "telegramApi": {
+          "id": "c9ER6Rnv0nN6IjVd",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "models/gemini-3.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-3.5-flash"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -160,
+        224
+      ],
+      "id": "e6c69e48-415f-4929-93e8-37c404a37476",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "rU2n7FTwOru9UqzD",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "50a660dd-5543-446f-9068-b8ee3c1cdfa0",
+              "leftValue": "={{ $json.text }}",
+              "rightValue": "无更新",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        144,
+        -16
+      ],
+      "id": "6a9ee2da-c10a-4949-8357-addc22413086",
+      "name": "If"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "f3c31c21-cff0-4440-bbc1-f3af69f31edc",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "2ad2579e85684bfcd045da7a7da0936f8874a716385acf9895349b9f12e4790f"
+  },
+  "nodeGroups": [],
+  "id": "KTHxILfuITbPwiGR",
+  "tags": []
+}

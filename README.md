@@ -5,7 +5,7 @@
 **开源 AI 工作流蓝图库**
 
 [![License](https://img.shields.io/github/license/ynqwer/ai-workflow-hub)](LICENSE)
-[![Workflows](https://img.shields.io/badge/Workflows-1+-blue)](workflows/)
+[![Workflows](https://img.shields.io/badge/Workflows-2+-blue)](workflows/)
 [![PR Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)](#-贡献指南)
 
 [English](README.en.md) | 简体中文
@@ -48,6 +48,7 @@ workflows/[工作流名]/README.md   ← 配置说明
 | 工作流 | 平台 | 功能 | 难度 | 状态 |
 |--------|------|------|------|------|
 | [网页去噪提炼 + TG 推送](workflows/web-summary-to-tg/) | n8n | 网页去噪提炼 + Telegram 推送 | 中 | 可用 |
+| [GitHub Release 更新监控](workflows/web-update-to-tg/) | n8n | 定时检测 GitHub Release 更新 + Telegram 推送 | 中 | 可用 |
 
 ## 目录结构
 
@@ -55,7 +56,11 @@ workflows/[工作流名]/README.md   ← 配置说明
 ai-workflow-hub/
 ├── README.md
 └── workflows/
-    └── web-summary-to-tg/
+    ├── web-summary-to-tg/
+    │   ├── README.md
+    │   ├── flow.json
+    │   └── preview.png
+    └── web-update-to-tg/
         ├── README.md
         ├── flow.json
         └── preview.png
